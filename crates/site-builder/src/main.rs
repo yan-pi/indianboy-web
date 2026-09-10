@@ -41,7 +41,6 @@ struct Site {
     url: String,
     intro: String,
     bio: String,
-    location: String,
     email: String,
     #[serde(default)]
     links: Vec<Link>,
@@ -414,7 +413,7 @@ fn render_home(site: &Site, posts: &[Post]) -> String {
         })
         .collect::<String>();
     let body = format!(
-        r#"<section class="intro" id="about"><p class="eyebrow">{}</p><h1>{}</h1><p class="lead">{}</p><p>{}</p><p class="muted">location: {} · interests: systems, open source, freedom</p></section>
+        r#"<section class="intro" id="about"><p class="eyebrow">{}</p><h1>{}</h1><p class="lead">{}</p><p>{}</p></section>
 <section><div class="section-heading"><h2>Writing</h2><a href="/blog">all posts →</a></div><div class="post-list">{}</div></section>
 <section class="home-section" id="projects"><div class="section-heading"><h2>Selected projects</h2></div><ul class="plain-list">{}</ul></section>
 <section class="home-section" id="work"><div class="section-heading"><h2>Work</h2></div><ul class="plain-list work-list">{}</ul></section>
@@ -423,7 +422,6 @@ fn render_home(site: &Site, posts: &[Post]) -> String {
         escape(&site.name),
         escape(&site.bio),
         links,
-        escape(&site.location),
         recent,
         projects,
         work,
@@ -547,7 +545,7 @@ fn post_row(post: &Post) -> String {
 
 fn page(site: &Site, title: &str, body: &str) -> String {
     format!(
-        r#"<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/assets/favicon.svg"><title>{}</title><meta name="description" content="{}"><link rel="stylesheet" href="/assets/css/site.css"><link rel="alternate" type="application/rss+xml" href="/rss.xml" title="{}"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script><script defer src="/assets/js/site.js"></script></head><body><div class="site-shell"><header class="site-header"><a class="site-name" href="/">{}</a><nav aria-label="Primary navigation"><a href="/">home</a><a href="/blog">writing</a><a href="/#projects">work</a><a href="/#contact">contact</a><button type="button" data-theme-toggle aria-label="Switch theme">◐</button></nav></header><main id="main-content">{}</main><footer class="site-footer"><span>© Yan Fernandes</span><span><a href="/rss.xml">rss</a> · <a href="mailto:{}">email</a> · <a href="/assets/pgp.txt">pgp</a></span></footer></div></body></html>"#,
+        r#"<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/assets/favicon.svg"><title>{}</title><meta name="description" content="{}"><link rel="stylesheet" href="/assets/css/site.css"><link rel="alternate" type="application/rss+xml" href="/rss.xml" title="{}"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script><script defer src="/assets/js/site.js"></script></head><body><div class="site-shell"><header class="site-header"><a class="site-name" href="/">{}</a><nav aria-label="Primary navigation"><a href="/">home</a><a href="/blog">writing</a><a href="/#projects">work</a><a href="/#contact">contact</a><button type="button" data-theme-toggle aria-label="Switch theme">◐</button></nav></header><main id="main-content">{}</main><footer class="site-footer"><span>© Yan Fernandes</span><span><a href="/rss.xml">rss</a> · <a href="mailto:{}">email</a> · <a href="/assets/pgp.txt">PGP 0xA5379CA528BA256E</a></span></footer></div></body></html>"#,
         escape(title),
         escape(&site.intro),
         escape(&site.site_name),

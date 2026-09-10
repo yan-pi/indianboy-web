@@ -3,7 +3,6 @@ site_name = "indianboy.sh"
 url = "https://indianboy.sh"
 intro = "Software engineer writing about Bitcoin, open source, and the systems I build."
 bio = "Software Engineer with an unhealthy obsession for Linux and Neovim. Former Techlead at FESF/SUS and Sats Capital. Now a Vinteum Fellow contributing full-time to open-source Bitcoin projects."
-location = "Brazil"
 email = "yan@indianboy.sh"
 
 [[links]]
