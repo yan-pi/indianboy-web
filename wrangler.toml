@@ -2,6 +2,11 @@ name = "indianboy-web"
 main = "build/worker/shim.mjs"
 compatibility_date = "2026-01-07"
 
+routes = [
+  { pattern = "indianboy.sh", custom_domain = true },
+  { pattern = "www.indianboy.sh", custom_domain = true }
+]
+
 [build]
 command = "cargo run -p site-builder --release && worker-build --release"
 
