@@ -1,0 +1,20 @@
+[package]
+name = "indianboy-worker"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[workspace]
+members = ["crates/site-builder"]
+resolver = "2"
+
+[dependencies]
+worker = "0.8.5"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1

@@ -1,0 +1,15 @@
+name = "indianboy-web"
+main = "build/worker/shim.mjs"
+compatibility_date = "2026-01-07"
+
+[build]
+command = "cargo run -p site-builder --release && worker-build --release"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+html_handling = "drop-trailing-slash"
+not_found_handling = "404-page"
+
+[vars]
+SITE_URL = "https://indianboy.sh"

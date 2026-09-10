@@ -1,0 +1,53 @@
+name = "Yan Fernandes"
+site_name = "indianboy.sh"
+url = "https://indianboy.sh"
+intro = "Software engineer writing about Bitcoin, open source, and the systems I build."
+bio = "Software Engineer with an unhealthy obsession for Linux and Neovim. Former Techlead at FESF/SUS and Sats Capital. Now a Vinteum Fellow contributing full-time to open-source Bitcoin projects."
+location = "Brazil"
+email = "yan@indianboy.sh"
+
+[[links]]
+label = "github"
+url = "https://github.com/yan-pi"
+
+[[links]]
+label = "twitter"
+url = "https://twitter.com/yamigake"
+
+[[projects]]
+name = "Bdk_Wallet"
+description = "A modern, lightweight, descriptor-based wallet library written in Rust."
+url = "https://github.com/yan-pi/bdk_wallet"
+
+[[projects]]
+name = "BlockSci"
+description = "A high-performance tool for blockchain science and exploration."
+url = "https://github.com/yan-pi/BlockSci/"
+
+[[work]]
+company = "Vinteum"
+title = "Fellow"
+start = "2026"
+end = "Present"
+url = "https://vinteum.org"
+
+[[work]]
+company = "Sats Capital"
+title = "Lead Engineer"
+start = "2023"
+end = "2026"
+url = "https://satscapital.com.br"
+
+[[work]]
+company = "FESF/SUS (Brazilian Gov HealthCare System)"
+title = "TechLead"
+start = "2024"
+end = "2025"
+url = "https://www.fesfsus.ba.gov.br/"
+
+[[work]]
+company = "Branef GovTech"
+title = "Front-end Intern"
+start = "2022"
+end = "2022"
+url = "https://www.linkedin.com/company/branef-innovation-e-technology/"
