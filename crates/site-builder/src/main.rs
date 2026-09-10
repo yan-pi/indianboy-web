@@ -351,7 +351,15 @@ fn highlight_code_blocks(html: String) -> String {
                     })
                     .unwrap_or_else(|| escape(line))
             })
-            .collect::<String>();
+            .collect::<String>()
+            .replace("color:#24231f;", "color:var(--syntax-fg);")
+            .replace("color:#77736a;", "color:var(--syntax-comment);")
+            .replace("color:#9b4d2d;", "color:var(--syntax-keyword);")
+            .replace("color:#7f3f25;", "color:var(--syntax-function);")
+            .replace("color:#4f6f52;", "color:var(--syntax-string);")
+            .replace("color:#8b5e34;", "color:var(--syntax-number);")
+            .replace("color:#405d72;", "color:var(--syntax-variable);")
+            .replace("color:#6f6a60;", "color:var(--syntax-punctuation);");
         output.push_str(&format!(
             "<pre><code class=\"language-{}\">{}</code></pre>",
             escape(language),

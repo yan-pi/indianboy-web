@@ -7,6 +7,14 @@
   --line: #d9d5ca;
   --accent: #9b4d2d;
   --code-bg: #eeece4;
+  --syntax-fg: #24231f;
+  --syntax-comment: #77736a;
+  --syntax-keyword: #9b4d2d;
+  --syntax-function: #7f3f25;
+  --syntax-string: #4f6f52;
+  --syntax-number: #8b5e34;
+  --syntax-variable: #405d72;
+  --syntax-punctuation: #6f6a60;
   --max: 48rem;
 }
 
@@ -19,6 +27,14 @@
   --line: #454239;
   --accent: #e19b6f;
   --code-bg: #25231f;
+  --syntax-fg: #ece8dd;
+  --syntax-comment: #aaa397;
+  --syntax-keyword: #e19b6f;
+  --syntax-function: #f0b08b;
+  --syntax-string: #a8c79b;
+  --syntax-number: #d9aa79;
+  --syntax-variable: #a9c4d8;
+  --syntax-punctuation: #c4beb2;
 }
 
 * { box-sizing: border-box; }
