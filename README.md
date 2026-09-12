@@ -29,6 +29,22 @@ With a local Worker running, execute the HTTP and browser smoke tests:
 BASE_URL=http://localhost:8787 npm run test:browser
 ```
 
+## Publishing checklist
+
+1. Add `content/posts/<slug>.md` with `title`, `description` or `summary`, `publishedAt`, `tags`, and optional `author` frontmatter.
+2. Add `assets/og/<slug>.png` for the same slug. Use a 1200×630 image.
+3. Build and validate locally:
+
+   ```sh
+   cargo run -p site-builder --release
+   npx wrangler@4.58.0 dev --local --port 8787
+   ./tests/route-smoke.sh
+   BASE_URL=http://localhost:8787 npm run test:browser
+   ```
+
+4. Deploy with `npx wrangler@4.58.0 deploy` and verify the post, its OG image, RSS entry, sitemap entry, and redirects.
+5. Commit and push the source changes. To recover a previous deployment, inspect `npx wrangler@4.58.0 deployments list` and roll back the intended version.
+
 ## Cloudflare preview
 
 Install `worker-build` and Wrangler, then run:
