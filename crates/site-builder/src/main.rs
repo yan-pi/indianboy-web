@@ -749,7 +749,7 @@ fn page(site: &Site, title: &str, meta: PageMeta<'_>, body: &str) -> String {
 }
 
 fn giscus() -> String {
-    r#"<section class="comments" aria-label="Comments"><h2>Comments</h2><script src="https://giscus.app/client.js" data-repo="yan-pi/indianboy" data-repo-id="R_kgDOPFUZCQ" data-category="Blog Comments" data-category-id="DIC_kwDOPFUZCc4C1gFm" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="preferred_color_scheme" data-lang="en" crossorigin="anonymous" async></script></section>"#.to_owned()
+    r#"<section class="comments" aria-label="Comments"><h2>Comments</h2><script src="https://giscus.app/client.js" data-repo="sollus-labs/indianboy" data-repo-id="R_kgDOPFUZCQ" data-category="Blog Comments" data-category-id="DIC_kwDOPFUZCc4C1gFm" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="preferred_color_scheme" data-lang="en" crossorigin="anonymous" async></script></section>"#.to_owned()
 }
 
 fn rss_date(value: &str) -> String {
@@ -866,6 +866,13 @@ fn escape(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn uses_the_canonical_giscus_repository() {
+        let config = giscus();
+        assert!(config.contains("data-repo=\"sollus-labs/indianboy\""));
+        assert!(!config.contains("data-repo=\"yan-pi/indianboy\""));
+    }
 
     #[test]
     fn expands_markdown_plus_directives() {
