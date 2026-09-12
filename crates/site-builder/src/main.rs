@@ -667,6 +667,20 @@ fn asset_version() -> String {
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
     include_bytes!("../../../assets/css/site.css").hash(&mut hasher);
     include_bytes!("../../../assets/js/site.js").hash(&mut hasher);
+
+    if let Ok(entries) = fs::read_dir("assets/og") {
+        let mut images = entries
+            .filter_map(|entry| entry.ok())
+            .map(|entry| entry.path())
+            .collect::<Vec<_>>();
+        images.sort();
+        for image in images {
+            if let Ok(bytes) = fs::read(image) {
+                bytes.hash(&mut hasher);
+            }
+        }
+    }
+
     format!("{:x}", hasher.finish())
 }
 
@@ -684,7 +698,7 @@ fn page(site: &Site, title: &str, meta: PageMeta<'_>, body: &str) -> String {
         ""
     };
     let canonical_url = format!("{}{}", base_url, meta.path);
-    let image_url = format!("{}{}", base_url, meta.image);
+    let image_url = format!("{}{}?v={}", base_url, meta.image, version);
     let article_meta = if meta.kind == "article" {
         let published = meta.published_at.unwrap_or("");
         let author = meta.author.unwrap_or("");
@@ -943,9 +957,12 @@ mod tests {
         );
         assert!(html.contains("<meta property=\"og:type\" content=\"article\">"));
         assert!(html.contains(
-            "<meta property=\"og:image\" content=\"https://indianboy.sh/assets/og/example.png\">"
+            "<meta property=\"og:image\" content=\"https://indianboy.sh/assets/og/example.png?v="
         ));
         assert!(html.contains("<meta name=\"twitter:card\" content=\"summary_large_image\">"));
+        assert!(html.contains(
+            "<meta property=\"og:image\" content=\"https://indianboy.sh/assets/og/example.png?v="
+        ));
         assert!(!html.contains("katex.min.js"));
         assert!(!html.contains("katex.min.css"));
         assert!(html.contains("site.css?v="));
