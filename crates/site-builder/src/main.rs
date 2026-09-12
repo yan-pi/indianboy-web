@@ -1,7 +1,13 @@
 use anyhow::{Context, Result};
 use comrak::{markdown_to_html, Options};
 use serde::Deserialize;
-use std::{collections::HashSet, env, fs, io::Cursor, path::Path};
+use std::{
+    collections::HashSet,
+    env, fs,
+    hash::{Hash, Hasher},
+    io::Cursor,
+    path::Path,
+};
 use syntect::{
     easy::HighlightLines,
     highlighting::ThemeSet,
@@ -154,7 +160,7 @@ fn parse_post(path: &Path) -> Result<Post> {
     options.extension.math_dollars = true;
     options.render.unsafe_ = true;
 
-    let body = strip_leading_h1(body);
+    let body = normalize_leading_h1(body, &meta.title);
     let body = expand_markdown_plus(&body);
     let (html, toc) = add_heading_ids(markdown_to_html(&body, &options));
     let html = highlight_code_blocks(rewrite_image_urls(html));
@@ -174,20 +180,27 @@ fn parse_post(path: &Path) -> Result<Post> {
     })
 }
 
-fn strip_leading_h1(source: &str) -> String {
+fn normalize_leading_h1(source: &str, title: &str) -> String {
     let leading_newlines = source.len() - source.trim_start_matches('\n').len();
     let trimmed = &source[leading_newlines..];
     let Some(after_marker) = trimmed.strip_prefix("# ") else {
         return source.to_owned();
     };
     let Some(line_end) = after_marker.find('\n') else {
-        return source[..leading_newlines].to_owned();
+        return source.to_owned();
     };
-    format!(
-        "{}{}",
-        &source[..leading_newlines],
-        &after_marker[line_end + 1..]
-    )
+    let heading = after_marker[..line_end].trim();
+    let remainder = &after_marker[line_end + 1..];
+    if heading == title.trim() {
+        format!("{}{}", &source[..leading_newlines], remainder)
+    } else {
+        format!(
+            "{}## {}\n{}",
+            &source[..leading_newlines],
+            heading,
+            remainder
+        )
+    }
 }
 
 fn expand_markdown_plus(source: &str) -> String {
@@ -205,11 +218,14 @@ fn expand_markdown_plus(source: &str) -> String {
         let note = rest[content_start..content_start + end].trim();
         note_number += 1;
         output.push_str(&format!(
-            "<span id=\"sidenote-ref-{}\" class=\"sidenote-reference\" role=\"doc-noteref\" aria-label=\"Side note\" aria-describedby=\"sidenote-{}\">†</span><span id=\"sidenote-{}\" class=\"sidenote\" role=\"note\">",
-            note_number, note_number, note_number
+            "<a href=\"#sidenote-{}\" id=\"sidenote-ref-{}\" class=\"sidenote-reference\" role=\"doc-noteref\" aria-label=\"Side note {}\" aria-describedby=\"sidenote-{}\">†</a><span id=\"sidenote-{}\" class=\"sidenote\" role=\"note\">",
+            note_number, note_number, note_number, note_number, note_number
         ));
         output.push_str(note);
-        output.push_str("</span>");
+        output.push_str(&format!(
+            " <a class=\"sidenote-back\" href=\"#sidenote-ref-{}\" aria-label=\"Back to side note reference {}\">↩</a></span>",
+            note_number, note_number
+        ));
         rest = &rest[content_start + end + 2..];
     }
     output.push_str(rest);
@@ -647,8 +663,21 @@ fn post_row(post: &Post) -> String {
     )
 }
 
+fn asset_version() -> String {
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    include_bytes!("../../../assets/css/site.css").hash(&mut hasher);
+    include_bytes!("../../../assets/js/site.js").hash(&mut hasher);
+    format!("{:x}", hasher.finish())
+}
+
 fn page(site: &Site, title: &str, meta: PageMeta<'_>, body: &str) -> String {
     let base_url = site.url.trim_end_matches('/');
+    let version = asset_version();
+    let math_stylesheet = if meta.needs_math {
+        r#"<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" crossorigin="anonymous">"#
+    } else {
+        ""
+    };
     let math_script = if meta.needs_math {
         r#"<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>"#
     } else {
@@ -679,7 +708,7 @@ fn page(site: &Site, title: &str, meta: PageMeta<'_>, body: &str) -> String {
         String::new()
     };
     format!(
-        r#"<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/assets/favicon.svg"><title>{}</title><meta name="description" content="{}"><link rel="canonical" href="{}"><meta property="og:type" content="{}"><meta property="og:title" content="{}"><meta property="og:description" content="{}"><meta property="og:url" content="{}"><meta property="og:site_name" content="{}"><meta property="og:image" content="{}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="{}">{}<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{}"><meta name="twitter:description" content="{}"><meta name="twitter:image" content="{}"><link rel="stylesheet" href="/assets/css/site.css"><link rel="alternate" type="application/rss+xml" href="/rss.xml" title="{}">{}<script defer src="/assets/js/site.js"></script></head><body><div class="site-shell"><header class="site-header"><a class="site-name" href="/">{}</a><nav aria-label="Primary navigation"><a href="/">home</a><a href="/blog">writing</a><a href="/#projects">work</a><a href="/#contact">contact</a><button type="button" data-theme-toggle aria-label="Switch theme">◐</button></nav></header><main id="main-content">{}</main><footer class="site-footer"><span>© Yan Fernandes</span><span><a href="/rss.xml">rss</a> · <a href="mailto:{}">email</a> · <a href="/assets/pgp.txt">PGP 0xA5379CA528BA256E</a></span></footer></div></body></html>"#,
+        r#"<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/assets/favicon.svg"><title>{}</title><meta name="description" content="{}"><link rel="canonical" href="{}"><meta property="og:type" content="{}"><meta property="og:title" content="{}"><meta property="og:description" content="{}"><meta property="og:url" content="{}"><meta property="og:site_name" content="{}"><meta property="og:image" content="{}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="{}">{}<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{}"><meta name="twitter:description" content="{}"><meta name="twitter:image" content="{}"><link rel="stylesheet" href="/assets/css/site.css?v={}"><link rel="alternate" type="application/rss+xml" href="/rss.xml" title="{}">{}{}<script defer src="/assets/js/site.js?v={}"></script></head><body><div class="site-shell"><header class="site-header"><a class="site-name" href="/">{}</a><nav aria-label="Primary navigation"><a href="/">home</a><a href="/blog">writing</a><a href="/#projects">work</a><a href="/#contact">contact</a><button type="button" data-theme-toggle aria-label="Switch theme">◐</button></nav></header><main id="main-content">{}</main><footer class="site-footer"><span>© Yan Fernandes</span><span><a href="/rss.xml">rss</a> · <a href="mailto:{}">email</a> · <a href="/assets/pgp.txt">PGP 0xA5379CA528BA256E</a></span></footer></div></body></html>"#,
         escape(title),
         escape(meta.description),
         escape(&canonical_url),
@@ -694,8 +723,11 @@ fn page(site: &Site, title: &str, meta: PageMeta<'_>, body: &str) -> String {
         escape(title),
         escape(meta.description),
         escape(&image_url),
+        version,
         escape(&site.site_name),
+        math_stylesheet,
         math_script,
+        version,
         escape(&site.site_name),
         body,
         escape(&site.email)
@@ -740,13 +772,14 @@ fn render_rss(site: &Site, posts: &[Post]) -> String {
                 .map(|tag| format!("<category>{}</category>", escape(tag)))
                 .collect::<String>();
             format!(
-                "<item><title><![CDATA[{}]]></title><link>{}/blog/{}</link><guid isPermaLink=\"true\">{}/blog/{}</guid><description><![CDATA[{}]]></description><author>{}</author>{}<pubDate>{}</pubDate></item>",
+                "<item><title><![CDATA[{}]]></title><link>{}/blog/{}</link><guid isPermaLink=\"true\">{}/blog/{}</guid><description><![CDATA[{}]]></description><author>{}</author><dc:creator>{}</dc:creator>{}<pubDate>{}</pubDate></item>",
                 xml_cdata(&post.meta.title),
                 escape(&site.url),
                 escape(&post.slug),
                 escape(&site.url),
                 escape(&post.slug),
                 xml_cdata(post_description(post)),
+                escape(&site.email),
                 escape(post.meta.author.as_deref().unwrap_or("Yan Fernandes")),
                 categories,
                 rss_date(&post.meta.published_at)
@@ -758,7 +791,7 @@ fn render_rss(site: &Site, posts: &[Post]) -> String {
         .map(|post| rss_date(&post.meta.published_at))
         .unwrap_or_default();
     format!(
-        r#"<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>{}</title><link>{}</link><atom:link href="{}/rss.xml" rel="self" type="application/rss+xml"/><language>en-us</language><lastBuildDate>{}</lastBuildDate><description>{}</description>{}</channel></rss>"#,
+        r#"<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>{}</title><link>{}</link><atom:link href="{}/rss.xml" rel="self" type="application/rss+xml"/><language>en-us</language><lastBuildDate>{}</lastBuildDate><description>{}</description>{}</channel></rss>"#,
         escape(&site.site_name),
         escape(&site.url),
         escape(site.url.trim_end_matches('/')),
@@ -827,7 +860,9 @@ mod tests {
         );
         assert!(html.contains("class=\"sidenote\""));
         assert!(html.contains("role=\"doc-noteref\""));
+        assert!(html.contains("href=\"#sidenote-1\""));
         assert!(html.contains("aria-describedby=\"sidenote-1\""));
+        assert!(html.contains("href=\"#sidenote-ref-1\""));
         assert!(html.contains("<figure>"));
         assert!(html.contains("Caption"));
     }
@@ -912,6 +947,9 @@ mod tests {
         ));
         assert!(html.contains("<meta name=\"twitter:card\" content=\"summary_large_image\">"));
         assert!(!html.contains("katex.min.js"));
+        assert!(!html.contains("katex.min.css"));
+        assert!(html.contains("site.css?v="));
+        assert!(html.contains("site.js?v="));
 
         let mut math_post = post;
         math_post.html = "<span data-math-style=\"inline\">x^2</span>".to_owned();
@@ -919,9 +957,15 @@ mod tests {
     }
 
     #[test]
-    fn strips_a_leading_body_h1() {
-        let html = strip_leading_h1("# Duplicate title\n\nBody");
-        assert_eq!(html, "\nBody");
+    fn normalizes_a_leading_body_h1() {
+        assert_eq!(
+            normalize_leading_h1("# Body heading\n\nBody", "Article title"),
+            "## Body heading\n\nBody"
+        );
+        assert_eq!(
+            normalize_leading_h1("# Article title\n\nBody", "Article title"),
+            "\nBody"
+        );
     }
 
     #[test]
@@ -956,8 +1000,10 @@ mod tests {
 
         assert!(rss.contains("<description><![CDATA[A useful summary]]></description>"));
         assert!(rss.contains("xmlns:atom=\"http://www.w3.org/2005/Atom\""));
+        assert!(rss.contains("xmlns:dc=\"http://purl.org/dc/elements/1.1/\""));
         assert!(rss.contains("<atom:link href=\"https://indianboy.sh/rss.xml\""));
-        assert!(rss.contains("<author>Yan</author>"));
+        assert!(rss.contains("<author>yan@example.com</author>"));
+        assert!(rss.contains("<dc:creator>Yan</dc:creator>"));
         assert!(rss.contains("<category>rust</category>"));
     }
 }

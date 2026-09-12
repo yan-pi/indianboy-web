@@ -41,6 +41,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install browser test dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
       - name: Start local Worker
         run: |
           npx --yes wrangler@4.58.0 dev --local --port 8787 > /tmp/wrangler.log 2>&1 &
@@ -56,6 +61,9 @@ jobs:
 
       - name: Route smoke tests
         run: ./tests/route-smoke.sh
+
+      - name: Browser smoke tests
+        run: BASE_URL=http://localhost:8787 npm run test:browser
 
       - name: Stop local Worker
         if: always()

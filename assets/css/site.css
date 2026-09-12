@@ -144,6 +144,7 @@ h2 { font-size: 1.25rem; margin: 0; }
   text-transform: uppercase;
 }
 .sidenote-reference { color: var(--accent); font-size: .75em; padding: 0 .15em; }
+.sidenote-back { color: var(--accent); font-size: .8em; text-decoration: none; }
 @media (min-width: 70rem) {
   .sidenote {
     float: right;

@@ -12,6 +12,23 @@ cargo run -p site-builder
 
 The generated site is written to `dist/`. All 13 current posts are migrated into `content/posts/`; the remaining parity work is tracked in `docs/PARITY.md`.
 
+## Validation
+
+```sh
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+npm ci
+npx playwright install chromium
+```
+
+With a local Worker running, execute the HTTP and browser smoke tests:
+
+```sh
+./tests/route-smoke.sh
+BASE_URL=http://localhost:8787 npm run test:browser
+```
+
 ## Cloudflare preview
 
 Install `worker-build` and Wrangler, then run:
