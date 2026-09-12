@@ -34,6 +34,16 @@ struct Post {
     reading_time: usize,
 }
 
+struct PageMeta<'a> {
+    description: &'a str,
+    path: &'a str,
+    image: &'a str,
+    kind: &'a str,
+    published_at: Option<&'a str>,
+    author: Option<&'a str>,
+    tags: &'a [String],
+}
+
 #[derive(Debug, Deserialize)]
 struct Site {
     name: String,
@@ -380,6 +390,20 @@ fn unescape_html(value: &str) -> String {
         .replace("&#39;", "'")
 }
 
+fn non_empty_or<'a>(primary: Option<&'a str>, fallback: Option<&'a str>) -> &'a str {
+    primary
+        .filter(|value| !value.trim().is_empty())
+        .or_else(|| fallback.filter(|value| !value.trim().is_empty()))
+        .unwrap_or("")
+}
+
+fn post_description(post: &Post) -> &str {
+    non_empty_or(
+        post.meta.description.as_deref(),
+        post.meta.summary.as_deref(),
+    )
+}
+
 fn render_home(site: &Site, posts: &[Post]) -> String {
     let recent = posts.iter().take(3).map(post_row).collect::<String>();
     let links = site
@@ -437,7 +461,20 @@ fn render_home(site: &Site, posts: &[Post]) -> String {
         escape(&site.email),
         links
     );
-    page(site, &format!("{} — {}", site.name, site.site_name), &body)
+    page(
+        site,
+        &format!("{} — {}", site.name, site.site_name),
+        PageMeta {
+            description: &site.intro,
+            path: "/",
+            image: "/assets/og/home.png",
+            kind: "website",
+            published_at: None,
+            author: None,
+            tags: &[],
+        },
+        &body,
+    )
 }
 
 fn render_archive(site: &Site, posts: &[Post]) -> String {
@@ -447,7 +484,20 @@ fn render_archive(site: &Site, posts: &[Post]) -> String {
         r#"<header class="page-heading"><p class="eyebrow">writing</p><h1>All posts</h1><p>Notes on engineering, Bitcoin, open source, and learning in public.</p></header>{}<div class="post-list" data-post-list>{}</div><p class="filter-empty" data-filter-empty hidden>No entries found with the selected filters.</p>"#,
         filters, rows
     );
-    page(site, &format!("Writing — {}", site.site_name), &body)
+    page(
+        site,
+        &format!("Writing — {}", site.site_name),
+        PageMeta {
+            description: &site.intro,
+            path: "/blog",
+            image: "/assets/og/home.png",
+            kind: "website",
+            published_at: None,
+            author: None,
+            tags: &[],
+        },
+        &body,
+    )
 }
 
 fn render_filters(posts: &[Post]) -> String {
@@ -497,12 +547,8 @@ fn render_post(site: &Site, post: &Post) -> String {
                 .join(" ")
         )
     };
-    let description = post
-        .meta
-        .description
-        .as_deref()
-        .or(post.meta.summary.as_deref())
-        .unwrap_or("");
+    let description = post_description(post);
+    let image = format!("/assets/og/{}.png", post.slug);
     let toc = if post.toc.is_empty() {
         String::new()
     } else {
@@ -528,6 +574,15 @@ fn render_post(site: &Site, post: &Post) -> String {
     page(
         site,
         &format!("{} — {}", post.meta.title, site.site_name),
+        PageMeta {
+            description,
+            path: &format!("/blog/{}", post.slug),
+            image: &image,
+            kind: "article",
+            published_at: Some(&post.meta.published_at),
+            author: Some(post.meta.author.as_deref().unwrap_or("Yan Fernandes")),
+            tags: &post.meta.tags,
+        },
         &body,
     )
 }
@@ -539,23 +594,54 @@ fn post_row(post: &Post) -> String {
         escape(&post.slug),
         escape(&tags),
         escape(&post.meta.title),
-        escape(
-            post.meta
-                .description
-                .as_deref()
-                .or(post.meta.summary.as_deref())
-                .unwrap_or("")
-        ),
+        escape(post_description(post)),
         escape(&post.meta.published_at),
         escape(&post.meta.published_at)
     )
 }
 
-fn page(site: &Site, title: &str, body: &str) -> String {
+fn page(site: &Site, title: &str, meta: PageMeta<'_>, body: &str) -> String {
+    let base_url = site.url.trim_end_matches('/');
+    let canonical_url = format!("{}{}", base_url, meta.path);
+    let image_url = format!("{}{}", base_url, meta.image);
+    let article_meta = if meta.kind == "article" {
+        let published = meta.published_at.unwrap_or("");
+        let author = meta.author.unwrap_or("");
+        let tags = meta
+            .tags
+            .iter()
+            .map(|tag| {
+                format!(
+                    "<meta property=\"article:tag\" content=\"{}\">",
+                    escape(tag)
+                )
+            })
+            .collect::<String>();
+        format!(
+            "<meta property=\"article:published_time\" content=\"{}\"><meta property=\"article:author\" content=\"{}\">{}",
+            escape(published),
+            escape(author),
+            tags
+        )
+    } else {
+        String::new()
+    };
     format!(
-        r#"<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/assets/favicon.svg"><title>{}</title><meta name="description" content="{}"><link rel="stylesheet" href="/assets/css/site.css"><link rel="alternate" type="application/rss+xml" href="/rss.xml" title="{}"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script><script defer src="/assets/js/site.js"></script></head><body><div class="site-shell"><header class="site-header"><a class="site-name" href="/">{}</a><nav aria-label="Primary navigation"><a href="/">home</a><a href="/blog">writing</a><a href="/#projects">work</a><a href="/#contact">contact</a><button type="button" data-theme-toggle aria-label="Switch theme">◐</button></nav></header><main id="main-content">{}</main><footer class="site-footer"><span>© Yan Fernandes</span><span><a href="/rss.xml">rss</a> · <a href="mailto:{}">email</a> · <a href="/assets/pgp.txt">PGP 0xA5379CA528BA256E</a></span></footer></div></body></html>"#,
+        r#"<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/assets/favicon.svg"><title>{}</title><meta name="description" content="{}"><link rel="canonical" href="{}"><meta property="og:type" content="{}"><meta property="og:title" content="{}"><meta property="og:description" content="{}"><meta property="og:url" content="{}"><meta property="og:site_name" content="{}"><meta property="og:image" content="{}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="{}">{}<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{}"><meta name="twitter:description" content="{}"><meta name="twitter:image" content="{}"><link rel="stylesheet" href="/assets/css/site.css"><link rel="alternate" type="application/rss+xml" href="/rss.xml" title="{}"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script><script defer src="/assets/js/site.js"></script></head><body><div class="site-shell"><header class="site-header"><a class="site-name" href="/">{}</a><nav aria-label="Primary navigation"><a href="/">home</a><a href="/blog">writing</a><a href="/#projects">work</a><a href="/#contact">contact</a><button type="button" data-theme-toggle aria-label="Switch theme">◐</button></nav></header><main id="main-content">{}</main><footer class="site-footer"><span>© Yan Fernandes</span><span><a href="/rss.xml">rss</a> · <a href="mailto:{}">email</a> · <a href="/assets/pgp.txt">PGP 0xA5379CA528BA256E</a></span></footer></div></body></html>"#,
         escape(title),
-        escape(&site.intro),
+        escape(meta.description),
+        escape(&canonical_url),
+        escape(meta.kind),
+        escape(title),
+        escape(meta.description),
+        escape(&canonical_url),
+        escape(&site.site_name),
+        escape(&image_url),
+        escape(title),
+        article_meta,
+        escape(title),
+        escape(meta.description),
+        escape(&image_url),
         escape(&site.site_name),
         escape(&site.site_name),
         body,
@@ -589,7 +675,7 @@ fn rss_date(value: &str) -> String {
 fn render_rss(site: &Site, posts: &[Post]) -> String {
     let items = posts
         .iter()
-        .map(|post| format!("<item><title><![CDATA[{}]]></title><link>{}/blog/{}</link><guid>{}/blog/{}</guid><description><![CDATA[{}]]></description><pubDate>{}</pubDate></item>", post.meta.title, site.url, post.slug, site.url, post.slug, post.meta.description.as_deref().unwrap_or(""), rss_date(&post.meta.published_at)))
+        .map(|post| format!("<item><title><![CDATA[{}]]></title><link>{}/blog/{}</link><guid>{}/blog/{}</guid><description><![CDATA[{}]]></description><pubDate>{}</pubDate></item>", post.meta.title, site.url, post.slug, site.url, post.slug, post_description(post), rss_date(&post.meta.published_at)))
         .collect::<String>();
     format!(
         r#"<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>{}</title><link>{}</link><description>{}</description>{}</channel></rss>"#,
@@ -680,6 +766,80 @@ mod tests {
         let html = highlight_code_blocks(
             "<pre><code class=\"language-rust\">fn main() {}</code></pre>".to_owned(),
         );
-        assert!(html.contains("style=\"color:"));
+        assert!(html.contains("style=\"color:") || html.contains("style=\"font-style:"));
+    }
+
+    #[test]
+    fn uses_summary_when_description_is_blank_and_emits_article_metadata() {
+        let site = Site {
+            name: "Yan Fernandes".to_owned(),
+            site_name: "indianboy.sh".to_owned(),
+            url: "https://indianboy.sh".to_owned(),
+            intro: "Site intro".to_owned(),
+            bio: "Bio".to_owned(),
+            email: "yan@example.com".to_owned(),
+            links: Vec::new(),
+            projects: Vec::new(),
+            work: Vec::new(),
+        };
+        let post = Post {
+            slug: "example".to_owned(),
+            meta: Frontmatter {
+                title: "Example post".to_owned(),
+                description: Some("   ".to_owned()),
+                published_at: "2026-01-01".to_owned(),
+                tags: vec!["rust".to_owned()],
+                author: Some("Yan".to_owned()),
+                summary: Some("A useful summary".to_owned()),
+            },
+            html: "<p>Body</p>".to_owned(),
+            toc: String::new(),
+            reading_time: 1,
+        };
+
+        let html = render_post(&site, &post);
+
+        assert!(html.contains("content=\"A useful summary\""));
+        assert!(
+            html.contains("<link rel=\"canonical\" href=\"https://indianboy.sh/blog/example\">")
+        );
+        assert!(html.contains("<meta property=\"og:type\" content=\"article\">"));
+        assert!(html.contains(
+            "<meta property=\"og:image\" content=\"https://indianboy.sh/assets/og/example.png\">"
+        ));
+        assert!(html.contains("<meta name=\"twitter:card\" content=\"summary_large_image\">"));
+    }
+
+    #[test]
+    fn rss_uses_summary_when_description_is_blank() {
+        let site = Site {
+            name: "Yan Fernandes".to_owned(),
+            site_name: "indianboy.sh".to_owned(),
+            url: "https://indianboy.sh".to_owned(),
+            intro: "Site intro".to_owned(),
+            bio: "Bio".to_owned(),
+            email: "yan@example.com".to_owned(),
+            links: Vec::new(),
+            projects: Vec::new(),
+            work: Vec::new(),
+        };
+        let post = Post {
+            slug: "example".to_owned(),
+            meta: Frontmatter {
+                title: "Example post".to_owned(),
+                description: Some(String::new()),
+                published_at: "2026-01-01".to_owned(),
+                tags: Vec::new(),
+                author: None,
+                summary: Some("A useful summary".to_owned()),
+            },
+            html: String::new(),
+            toc: String::new(),
+            reading_time: 1,
+        };
+
+        let rss = render_rss(&site, &[post]);
+
+        assert!(rss.contains("<description><![CDATA[A useful summary]]></description>"));
     }
 }
