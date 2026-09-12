@@ -21,7 +21,17 @@ test ! -f dist/assets/_headers || { echo "stale nested _headers must not be depl
 /usr/bin/grep -Fq '/assets/*' dist/_headers || { echo "expected /assets/* header rule" >&2; exit 1; }
 
 test "$(/usr/bin/curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "$base_url/blog/coding-confortable")" = "308 $base_url/blog/coding-comfortable" || {
-  echo "legacy redirect failed" >&2
+  echo "coding legacy redirect failed" >&2
+  exit 1
+}
+test "$(/usr/bin/curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "$base_url/blog/use-semmantic-release")" = "308 $base_url/blog/use-semantic-release" || {
+  echo "semantic-release legacy redirect failed" >&2
+  exit 1
+}
+
+after_slash=$(/usr/bin/curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "$base_url/blog/")
+test "$after_slash" = "308 $base_url/blog" || test "$after_slash" = "307 $base_url/blog" || test "$after_slash" = "301 $base_url/blog" || {
+  echo "trailing slash redirect failed: $after_slash" >&2
   exit 1
 }
 

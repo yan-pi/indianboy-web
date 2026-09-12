@@ -779,6 +779,25 @@ mod tests {
     }
 
     #[test]
+    fn renders_markdown_plus_fixture_features() {
+        let source = include_str!("../../../tests/fixtures/markdown-plus.md");
+        let expanded = expand_markdown_plus(source);
+        let mut options = Options::default();
+        options.extension.table = true;
+        options.extension.math_dollars = true;
+        options.render.unsafe_ = true;
+        let (html, toc) = add_heading_ids(markdown_to_html(&expanded, &options));
+        let html = highlight_code_blocks(rewrite_image_urls(html));
+
+        assert!(html.contains("class=\"sidenote\""));
+        assert!(html.contains("<figure>"));
+        assert!(html.contains("language-mermaid"));
+        assert!(html.contains("data-math-style"));
+        assert!(html.contains("<table>"));
+        assert!(toc.contains("diagram"));
+    }
+
+    #[test]
     fn preserves_legacy_date_in_html_but_normalizes_rss() {
         assert_eq!(rss_date("2025-06-31"), "Tue, 01 Jul 2025 00:00:00 +0000");
     }

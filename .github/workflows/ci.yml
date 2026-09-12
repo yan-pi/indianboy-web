@@ -31,7 +31,7 @@ jobs:
         run: cargo run -p site-builder --release
 
       - name: Install worker-build
-        run: cargo install worker-build --locked
+        run: cargo install worker-build --locked --version 0.8.5
 
       - name: Build Worker
         run: worker-build --release

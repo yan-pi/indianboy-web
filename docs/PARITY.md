@@ -31,7 +31,7 @@ The existing `indianboy` application remains the behavioral baseline. This repos
 - [x] Add Markdown+ unit fixtures for notes, covers, Mermaid, math, tables, and duplicate headings
 - [x] Add GitHub Actions validation for Rust, WASM, generated output, and route smoke tests
 - [x] Test light/dark/system behavior, reduced motion, keyboard navigation, and narrow layouts
-- [ ] Verify all existing Giscus discussions resolve to the same pathname
+- [x] Verify all existing Giscus discussions resolve to the same pathname (validated 2026-09-12: leaving-cto-for-open-source → #10, floresta-on-steamdeck → #9, ai-wont-replace-anyone → #8)
 - [x] Preserve source date `2025-06-31` in HTML and normalize it to `Tue, 01 Jul 2025` in RSS, matching the legacy JavaScript behavior
 
 ## Explicit presentation changes
