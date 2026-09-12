@@ -104,13 +104,17 @@ fn main() -> Result<()> {
     }
     posts.sort_by(|a, b| b.meta.published_at.cmp(&a.meta.published_at));
 
-    copy_dir(&root.join("assets"), &output.join("assets"))?;
+    let asset_source = root.join("assets");
+    copy_dir(&asset_source, &output.join("assets"))?;
+    fs::copy(asset_source.join("_headers"), output.join("_headers"))?;
+    fs::remove_file(output.join("assets/_headers"))?;
     fs::write(
         output.join("_redirects"),
         "/blog/coding-confortable /blog/coding-comfortable 308\n/blog/use-semmantic-release /blog/use-semantic-release 308\n",
     )?;
     write_page(&output.join("index.html"), &render_home(&site, &posts))?;
     write_page(&output.join("blog.html"), &render_archive(&site, &posts))?;
+    write_page(&output.join("404.html"), &render_not_found(&site))?;
     for post in &posts {
         write_page(
             &output.join(format!("blog/{}.html", post.slug)),
@@ -497,6 +501,24 @@ fn render_archive(site: &Site, posts: &[Post]) -> String {
             tags: &[],
         },
         &body,
+    )
+}
+
+fn render_not_found(site: &Site) -> String {
+    let body = r#"<header class="page-heading"><p class="eyebrow">404</p><h1>Page not found</h1><p>This page does not exist. <a href="/">Return home</a>.</p></header>"#;
+    page(
+        site,
+        &format!("Not found — {}", site.site_name),
+        PageMeta {
+            description: "Page not found.",
+            path: "/404.html",
+            image: "/assets/og/home.png",
+            kind: "website",
+            published_at: None,
+            author: None,
+            tags: &[],
+        },
+        body,
     )
 }
 
