@@ -91,8 +91,7 @@ Researching BIPs related to Silent Payments and Taproot, I found the following:
   Supports light clients via BIP-158 filters or indexes.
 
 - **Security**:
-  Based on ECDLP; separates scan/spend keys; compatible with CoinJoin with caveats
-  (summing inputs from the same entity).
+  Based on ECDLP; separates scan/spend keys; compatible with CoinJoin. [[note: This compatibility has caveats, particularly when summing inputs assumed to belong to the same entity.]]
 
 - **Backup/Recovery**:
   Seed-based, but requires UTXO scan after recovery.
@@ -187,9 +186,7 @@ JoaoLeal asked about how Floresta works with the aggregation feature. Davidson e
   When a new UTXO is created, it is added as a leaf node. The tree is updated, and the root hash changes to reflect the new state.
 
 - **Deletion:**  
-  When a UTXO is spent, its corresponding leaf node is deleted. The tree is rebalanced, and the root hash is updated.
-  
-  (At least this was my understanding of how it works, I will need to dive deeper into the codebase to understand exactly how Floresta implements these operations.)
+  When a UTXO is spent, its corresponding leaf node is deleted. The tree is rebalanced, and the root hash is updated. [[note: This was my working model at the time; I still needed to verify exactly how Floresta implements deletion and rebalancing.]]
 
 ## 08-Jan-2026
 

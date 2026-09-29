@@ -1,24 +1,24 @@
 ---
-title: 'How to Code Comfortably: A Guide to Split Keyboards for Developers'
-description: 'Split keyboards changed everything. Here is what I learned about ergonomic setups, from choosing your first split to configuring layers and finding the perfect resting position.'
-publishedAt: '2026-01-23'
-tags: ['ergonomics', 'keyboards', 'productivity']
-author: 'Yan Fernandes'
-summary: 'A practical guide to split keyboards for developers: choosing between open source and commercial options, understanding high vs low profile, thumb clusters, layers, and finding your comfortable coding position.'
+title: "How to Code Comfortably: A Guide to Split Keyboards for Developers"
+description: "Split keyboards changed everything. Here is what I learned about ergonomic setups, from choosing your first split to configuring layers and finding the perfect resting position."
+publishedAt: "2026-01-23"
+tags: ["ergonomics", "keyboards", "productivity"]
+author: "Yan Fernandes"
+summary: "A practical guide to split keyboards for developers: choosing between open source and commercial options, understanding high vs low profile, thumb clusters, layers, and finding your comfortable coding position."
 ---
 
 > **TL;DR:** Split keyboards let you type at shoulder width, reducing wrist strain. Start with an open source design like Corne or Lily58, go low-profile (Choc) if you want portability, and invest time in learning layers, they're essential for small boards.
 
 ## The Problem
 
-I used to think wrist pain was just part of being a developer. 
+I used to think wrist pain was just part of being a developer.
 Eight hours of coding, sore wrists, tense shoulders.
 Normal, right?
 
 Then I get into [this video](https://www.youtube.com/watch?v=1C2bJkzIaPE) from Ben Valek, were he goes into the topic of ergonomics and split keyboards, and i started thinking about it, i was already using keyboard first tools (like neovim, cli and tui to do major of my job).
 
 Then I watched myself type.
-My wrists were bent inward, shoulders hunched forward, fingers reaching awkwardly for keys (since i have small hands), some keys I pressed sometimes with one hand, sometimes with the other, everything seems to be wrong.
+My wrists were bent inward, shoulders hunched forward, fingers reaching awkwardly for keys. [[note: I have small hands, which made those reaches especially noticeable.]] Some keys I pressed sometimes with one hand, sometimes with the other, everything seems to be wrong.
 
 Found that the standard keyboard layout dates back to typewriters and we're still usign that shit.
 
@@ -28,7 +28,7 @@ Something had to change.
 
 Here's the thing about regular keyboards: they force your hands together. Your shoulders roll forward. Your wrists angle inward. Do that for 8 hours a day, 5 days a week, and your body will let you know.
 
-Split keyboards fix this by letting you place each half at shoulder width. Your arms stay parallel. Your wrists stay straight. It sounds simple because it is. (Not really, it depends on how deep you want to get into)
+Split keyboards fix this by letting you place each half at shoulder width. Your arms stay parallel. Your wrists stay straight. It sounds simple because it is. [[note: Not entirely—it depends on how deep you want to go.]]
 
 But there's more to it. Most split keyboards also use **column stagger** instead of row stagger. On a regular keyboard, each row is offset horizontally, a leftover from typewriter mechanics. Column stagger aligns keys vertically based on finger length. Your fingers move up and down naturally instead of reaching diagonally.
 
@@ -38,15 +38,17 @@ This is where it gets interesting. You have three options:
 
 ### Open Source Designs
 
-The community has created dozens of tested, refined keyboard designs. 
+The community has created dozens of tested, refined keyboard designs.
 The most popular:
+
 - **Corne (Crkbd)** : 42 keys, minimal, the one I use daily. Forces you to learn layers.
 - **Lily58** : 58 keys, more forgiving. I built one of these first.
 - **Sofle** : Similar to Lily58 with rotary encoder support.
 
 These are open source. The PCB files, firmware, and build guides are all free. You can order PCBs from JLCPCB or PCBWay for cheap. The catch? You need to source parts and solder.
 
-you can search with this resources: 
+you can search with this resources:
+
 - [jhelvy](https://jhelvy.github.io/splitKbCompare/)
 - [r/ErgoMechKeyboards](https://www.reddit.com/r/ErgoMechKeyboards/)
 
@@ -114,12 +116,9 @@ Hardware is half the story. The real magic happens in firmware.
 Two main options:
 
 - **QMK** : The standard. Runs on wired keyboards. Incredibly powerful, great documentation, huge community.
-- **ZMK** : Built for wireless. If you want Bluetooth, this is your choice. Slightly less mature but actively developed.
+- **ZMK** : Built for wireless. If you want Bluetooth, this is your choice. Slightly less mature but actively developed. [[note: Each firmware needs to be compatible with your keyboard's PCB and microcontroller. Check before you start.]]
 
-> Each firmware needs to be compatible with your keyboard's PCB and microcontroller. Check before you start.
-
-I use ZMK because I wanted wireless. No regrets.
-> Both are solid choices. but QMK has been around longer and has more resources.
+I use ZMK because I wanted wireless. No regrets. [[note: Both are solid choices. But QMK has been around longer and has more resources.]]
 
 ### Layers: Essential for Small Boards
 
@@ -212,4 +211,3 @@ After going through multiple builds and configurations:
 The hardest part is the first two weeks. Your brain knows where keys should be, and they're not there anymore. Stick with it. The payoff is typing all day without pain.
 
 That's worth some temporary frustration.
-

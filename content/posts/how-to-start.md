@@ -112,7 +112,7 @@ Do this every month.
 
 ## Conclusion: Stop Waiting for Permission
 
-College helps, mentorship helps, working for free sometimes helps — but nothing replaces showing work. (proof of work)
+College helps, mentorship helps, working for free sometimes helps — but nothing replaces showing work. [[note: I think of this as proof of work: visible, verifiable output instead of claims.]]
 
 If you want to get into tech, turn yourself into a one-person agency: deliver, publish, maintain, and monetize when you can.
 Be antifragile: protect yourself, risk small bets, and collect opportunities.

@@ -71,8 +71,7 @@ The node was discovering peers through DNS seeds, connecting to them, and immedi
 
 Because none of them advertised the service flag it wanted.
 
-I'm not going to pretend I know the protocol-level details of why `0x1000000` was the magic number my v0.8.0 wanted.
-I'll just say what I observed: my node wanted something nobody on the network was offering.
+I'll just say what I observed: my node wanted something nobody on the network was offering. [[note: I didn't investigate why v0.8.0 expected this exact service flag; this is an operational observation, not a protocol explanation.]]
 
 Zero Utreexo peers.
 Zero proofs.

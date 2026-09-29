@@ -28,8 +28,7 @@ address more thoroughly in another article.
 Reading should be a positive experience, a pleasure. It's not about rushing through the material as quickly as possible.
 Nobody boasts, "Dude, yesterday I had the fastest sex ever, it was awesome." If you feel like you're a slow reader and
 want to pick up the pace without sacrificing comprehension, consider the approach outlined in the book
-[How to Win Friends & Influence People](https://www.amazon.com/-/pt/dp/0671027034/ref=sr_1_1?sr=8-1) (I believe this is
-a common feature in all editions of the book, mine being the Portuguese version from Companhia Nacional). Here's how you
+[How to Win Friends & Influence People](https://www.amazon.com/-/pt/dp/0671027034/ref=sr_1_1?sr=8-1). [[note: I believe this advice appears in every edition; my copy is the Portuguese edition from Companhia Nacional.]] Here's how you
 can read non-fiction books and still extract valuable content:
 
 1. Cultivate a deep and dynamic desire to learn everything the book has to offer. Approach it with a genuine hunger for

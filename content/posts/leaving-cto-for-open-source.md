@@ -103,7 +103,7 @@ Money isn't everything. Recognition, purpose, and the feeling of doing real work
 
 ## How the Company Took It
 
-I'll keep this short out of respect (and because of my NDA).
+I'll keep this short out of respect. [[note: My NDA is another reason I cannot share more detail.]]
 
 The conversation with CEO was direct on both sides. He gave me my start. I told him the truth about why I was leaving and what I was leaving for. The relationship is intact.
 

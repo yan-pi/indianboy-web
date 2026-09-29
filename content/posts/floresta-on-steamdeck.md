@@ -103,9 +103,7 @@ After headers sync, the node had trouble finding Utreexo peers to continue.
 
 Most signet peers were disconnected for not having the required services, and the few `utreexod` peers that connected returned proof validation errors. The node kept looping on "Not enough utreexo peers."
 
-I didn't dig deep enough to figure out exactly why.
-
-Could be a configuration issue on my end, a protocol version mismatch, or just the reality of signet having very few Utreexo bridge nodes right now.
+I didn't isolate the exact cause. [[note: It could have been local configuration, a protocol-version mismatch, or simply too few signet Utreexo bridge nodes.]]
 
 If you know what's going on here, I'd love to hear about it btw.
 
